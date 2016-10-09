@@ -1,9 +1,9 @@
 require('array.prototype.find');
 
-module.exports = function (onDevice, onStatus) {
+module.exports = function (config, onDevice, onStatus) {
 
 	var request = require('request');
-	var config = require('./config.json');
+	//var config = require('./config.json');
 
     var xmlParse = require('xml2js').parseString;
 

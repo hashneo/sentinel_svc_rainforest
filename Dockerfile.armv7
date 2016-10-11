@@ -4,9 +4,9 @@ COPY ./ /app
 
 WORKDIR /app
 
-RUN npm install
+RUN apt-get update && apt-get install -y iputils-ping net-tools
 
-EXPOSE 8080
+RUN npm install
 
 ENTRYPOINT ["npm", "start"]
 

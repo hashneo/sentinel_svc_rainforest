@@ -1,12 +1,12 @@
-FROM mhart/alpine-node:6.2.1
+FROM mhart/alpine-node:latest
 
-COPY ./ /app
+#bash is used to run npm test inside the container
+RUN apk update && apk upgrade && apk --update add bash && rm -rf /var/cache/apk/*
 
-WORKDIR /app
+WORKDIR /src
+ADD . .
 
 RUN npm install
-RUN npm install forever -g
 
-EXPOSE 8080
-
-ENTRYPOINT ["forever", "server.js"]
+EXPOSE 5000
+CMD ["node", "app.js"]

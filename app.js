@@ -48,6 +48,8 @@ SwaggerExpress.create(config, function (err, swaggerExpress) {
     // install middleware
     swaggerExpress.register(app);
 
+    let serviceId = process.env.SERVICE_ID || uuid.v4();
+
     var port = process.env.PORT || 5000;
     var server = app.listen(port, () => {
 
@@ -55,28 +57,30 @@ SwaggerExpress.create(config, function (err, swaggerExpress) {
         let port = server.address().port;
 
         var module = {
-            id: uuid.v4(),
+            id: serviceId,
             name: 'sentinel_rainforest',
             address: host,
-            port: port/*,
-             check:{
-             http: `http://${host}:${port}/health`,
-             interval:'15s'
-             }*/
+            port: port,
+            check: {
+                http: `http://${host}:${port}/health?id=${serviceId}`,
+                interval: '15s'
+            }
         };
 
+        process.env.SERVICE_ID = serviceId;
+
         consul.agent.service.register(module)
-            .then( (err, result) =>{
+            .then((err, result) => {
                 if (err)
                     throw err;
             })
-            .catch( (err) => {
+            .catch((err) => {
                 throw err;
             })
     });
 
     if (swaggerExpress.runner.swagger.paths['/health']) {
-        console.log(`you can get /health on port ${port}`);
+        console.log(`you can get /health?id=${serviceId} on port ${port}`);
     }
 
 });

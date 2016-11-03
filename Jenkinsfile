@@ -4,7 +4,7 @@ env.LATEST = 'latest'
 env.DOCKER_REGISTRY = 'steventaylor.me:5000'
 env.SERVICE_NAME = 'sentinel_rainforest'
 env.CONTAINER1 = env.SERVICE_NAME + '-' + env.ARCH
-env.DOCKER_HOST = 'tcp://10.0.1.40:2375'
+env.DOCKER_HOST = 'tcp://10.0.1.50:2375'
 
 node {
 

@@ -2,7 +2,7 @@ env.ARCH = 'arm'
 env.BUILD = '0.1.' + env.BUILD_NUMBER
 env.LATEST = 'latest'
 env.DOCKER_REGISTRY = 'steventaylor.me:5000'
-env.SERVICE_NAME = 'rainforest'
+env.SERVICE_NAME = 'sentinel-rainforest'
 env.CONTAINER1 = env.SERVICE_NAME + '-' + env.ARCH
 env.DOCKER_HOST = 'tcp://10.0.1.50:2375'
 
@@ -28,7 +28,7 @@ node {
 
         if (r == 0){
             // update the image
-            sh 'kubectl set image deployment/${SERVICE_NAME}-deployment service=sentinel-${SERVICE_NAME}:${DOCKER_REGISTRY}/${CONTAINER1}:${BUILD}'
+            sh 'kubectl set image deployment/${SERVICE_NAME}-deployment ${SERVICE_NAME}=${DOCKER_REGISTRY}/${CONTAINER1}:${BUILD}'
         } else {
             // deploy service
             sh 'sed -e "s/\\:latest/:${BUILD}/" ./kube.yml | kubectl create -f -'

@@ -24,11 +24,11 @@ node {
         sh 'docker rmi ${DOCKER_REGISTRY}/${CONTAINER1}:${BUILD}'
 
         stage 'deploy'
-        def r = sh ( script: 'kubectl get deployments/${SERVICE_NAME}-deployment', returnStatus: true )
+        def r = sh ( script: 'kubectl get deployments/${SERVICE_NAME}', returnStatus: true )
 
         if (r == 0){
             // update the image
-            sh 'kubectl set image deployment/${SERVICE_NAME}-deployment ${SERVICE_NAME}=${DOCKER_REGISTRY}/${CONTAINER1}:${BUILD}'
+            sh 'kubectl set image deployment/${SERVICE_NAME} ${SERVICE_NAME}=${DOCKER_REGISTRY}/${CONTAINER1}:${BUILD}'
         } else {
             // deploy service
             sh 'sed -e "s/\\:latest/:${BUILD}/" ./kube.yml | kubectl create -f -'

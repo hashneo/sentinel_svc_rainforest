@@ -31,7 +31,7 @@ node {
             sh 'kubectl set image deployment/${SERVICE_NAME}-deployment service=sentinel-${SERVICE_NAME}:${DOCKER_REGISTRY}/${CONTAINER1}:${BUILD}'
         } else {
             // deploy service
-            sh 'sed -e "s/\:latest/:${BUILD}/" ./kube.yml | kubectl create -f -'
+            sh 'sed -e "s/\\:latest/:${BUILD}/" ./kube.yml | kubectl create -f -'
         }
 
         //sh 'docker service update --image  ${DOCKER_REGISTRY}/${CONTAINER1}:${BUILD} ${SERVICE_NAME}'

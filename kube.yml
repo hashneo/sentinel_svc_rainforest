@@ -1,61 +1,48 @@
 apiVersion: v1
-kind: Pod
-metadata:
-  labels:
-    name: rainforest_pod
-    namespace: default
-spec:
-  containers:
-    -
-      name: rainforest
-      image: steventaylor.me:5000/sentinel_rainforest-arm:latest
-      env:
-        -
-          name: PORT
-          value: 5000
-        -
-          name: REDIS
-          value: 10.0.1.10
-        -
-          name: CONSUL
-          value: 10.0.1.10
-      ports:
-        -
-          containerPort: 5000
-----
-apiVersion: v1
 kind: Service
 metadata:
-  name: mysql-service
-  labels:
-    name: mysql-pod
-    context: docker-k8s-lab
+  name: rainforest-service
 spec:
+  type: ClusterIP
   ports:
-    # the port that this service should serve on
-    - port: 3306
-  # label keys and values that must match in order to receive traffic for this service
+  - name: http
+    port: 5050
+    protocol: TCP
+    targetPort: 5000
   selector:
-    name: mysql-pod
-    context: docker-k8s-lab
-----
-apiVersion: v1
-kind: ReplicationController
+    app: rainforest
+    context: sentinel-services
+    version: v1
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
 metadata:
-  name: wildfly-rc
-  labels:
-    name: wildfly
-    context: docker-k8s-lab
+  name: rainforest-deployment
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        name: wildfly
-        context: docker-k8s-lab
+        app: rainforest
+        context: sentinel-services
+        version: v1
     spec:
       containers:
-      - name: wildfly-rc-pod
-        image: arungupta/wildfly-mysql-javaee7:k8s
-        ports:
-        - containerPort: 8080
+        -
+          name: service
+          image: steventaylor.me:5000/sentinel-rainforest-arm:latest
+          imagePullPolicy: Always
+          env:
+            -
+              name: "PORT"
+              value: "5000"
+            -
+              name: "REDIS"
+              value: "10.0.1.10"
+            -
+              name: "CONSUL"
+              value: "10.0.1.10"
+          ports:
+            -
+              containerPort: 5000
+              protocol: TCP

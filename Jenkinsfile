@@ -26,7 +26,7 @@ node {
         stage 'deploy'
         def r = sh ( script: 'kubectl get deployments/${SERVICE_NAME}-deployment', returnStatus: true )
 
-        if (r){
+        if (r == 0){
             // update the image
             sh 'kubectl set image deployment/${SERVICE_NAME}-deployment service=sentinel-${SERVICE_NAME}:${DOCKER_REGISTRY}/${CONTAINER1}:${BUILD}'
         } else {

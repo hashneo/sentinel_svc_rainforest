@@ -27,7 +27,7 @@ function rainforest(config) {
     });
 
     statusCache.on( "set", function( key, value ){
-        pub.publish("rainforest.device.update",  JSON.stringify( { id : key, value : value } ) );
+        pub.publish("device.update",  JSON.stringify( { module: 'rainforest', id : key, value : value } ) );
     });
 
     function call(url, command, macId) {

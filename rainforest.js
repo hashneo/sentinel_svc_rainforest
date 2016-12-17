@@ -144,7 +144,7 @@ function rainforest(config) {
                         message_read: status.message_read
                     });
 
-                })
+                })/*
                 .then( () => {
                     return db.query( `
                         select t1.date, 
@@ -168,8 +168,11 @@ function rainforest(config) {
                     `)
                 })
                 .then( (rows,fields) => {
-                    if ( rows.length > 0 )
-                        sample['today_nem'] = '' + rows[0].nem;
+                */
+                .then( () => {
+                    //if ( rows.length > 0 )
+                    //    sample['today_nem'] = '' + rows[0].nem;
+                    sample['today_nem'] = 0;
                     statusCache.set(config.macId, sample);
                     fulfill(sample);
                 })

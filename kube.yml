@@ -31,7 +31,7 @@ spec:
         -
           name: sentinel-rainforest
           image: steventaylor.me:5000/sentinel-rainforest-arm:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           env:
             -
               name: "PORT"

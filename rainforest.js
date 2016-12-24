@@ -9,7 +9,18 @@ function rainforest(config) {
 
     const redis = require('redis');
 
-    let pub = redis.createClient({ host: '10.0.1.10' });
+    let pub = redis.createClient(
+        {
+            host: process.env.REDIS || global.config.redis || '127.0.0.1' ,
+            socket_keepalive: true,
+            retry_unfulfilled_commands: true
+        }
+    );
+
+    pub.on('end', function(e){
+        console.log('Redis hung up, committing suicide');
+        process.exit(1);
+    });
 
     var NodeCache = require( "node-cache" );
 

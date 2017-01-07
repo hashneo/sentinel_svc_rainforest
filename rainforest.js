@@ -188,7 +188,7 @@ function rainforest(config) {
                     fulfill(sample);
                 })
                 .catch((err) => {
-                    console.log(err);
+                    console.error(err);
                     reject(err);
                 });
 

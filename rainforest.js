@@ -22,17 +22,18 @@ function rainforest(config) {
         process.exit(1);
     });
 
-    var NodeCache = require( "node-cache" );
+    const NodeCache = require( "node-cache" );
 
-    var deviceCache = new NodeCache();
-    var statusCache = new NodeCache();
+    const request = require('request');
+    let http = require('http');
+    const mysql = require('./mysql');
 
-    var request = require('request');
-    var http = require('http');
-    var keepAliveAgent = new http.Agent({ keepAlive: true });
+    let deviceCache = new NodeCache();
+    let statusCache = new NodeCache();
 
-    var mysql = require('./mysql');
-    var db;
+    let keepAliveAgent = new http.Agent({ keepAlive: true });
+
+    let db;
 
     deviceCache.on( "set", function( key, value ){
     });
@@ -43,11 +44,11 @@ function rainforest(config) {
 
     function call(url, command, macId) {
 
-        return new Promise( ( fulfill, failure ) => {
+        return new Promise( ( fulfill, reject ) => {
 
-            var data = '<LocalCommand>\n<Name>' + command + '</Name>\n<MacId>0x' + macId + '</MacId>\n</LocalCommand>\n';
+            let data = '<LocalCommand>\n<Name>' + command + '</Name>\n<MacId>0x' + macId + '</MacId>\n</LocalCommand>\n';
 
-            var options = {
+            let options = {
                 url : url,
                 timeout : 30000,
                 body : data,
@@ -58,21 +59,21 @@ function rainforest(config) {
             try {
                 request.post(options, function (err, response, body) {
                     if (!err && body.indexOf("ERROR:") != 0 && response.statusCode == 200) {
-                        var v = null;
+                        let v = null;
                         try {
                             v = JSON.parse(body);
+                            fulfill(v);
                         } catch (e) {
+                            reject(e);
                         }
-                        fulfill(v);
-
                     } else {
-                        console.log("request failed => " + err);
-                        failure(err);
+                        console.error("request failed => " + err);
+                        reject(err);
                     }
                 });
-            }catch(e){
-                console.log("request error => " + e);
-                failure(e);
+            }catch(err){
+                console.error("request error => " + err);
+                reject(err);
             }
         } );
     }
@@ -88,17 +89,27 @@ function rainforest(config) {
                     if (err)
                         return reject(err);
 
-                    var data = [];
+                    statusCache.mget( ids, (err, statuses) => {
+                        if (err)
+                            return reject(err);
 
-                    for (var key in values) {
-                        data.push(values[key]);
-                    }
+                        let data = [];
 
-                    fulfill(data);
+                        for (let key in values) {
+                            let v = values[key];
+
+                            if ( statuses[key] ) {
+                                v.current = statuses[key];
+                                data.push(v);
+                            }
+                        }
+
+                        fulfill(data);
+                    });
+
                 });
             });
         });
-
     };
 
     this.getDeviceStatus = (id) => {
@@ -155,7 +166,7 @@ function rainforest(config) {
                         message_read: status.message_read
                     });
 
-                })/*
+                })
                 .then( () => {
                     return db.query( `
                         select t1.date, 
@@ -170,21 +181,25 @@ function rainforest(config) {
                             min(summation_received) as min_summation_received,
                             max(summation_received) as max_summation_received
                             from sentinel.samples
-                            group by demand_timestamp
-                            
+                            group by date, hour
+                            having date >= DATE_FORMAT( CURDATE(), '%Y%m%d')
                         ) t1 
                         group by t1.date
                         order by t1.date desc
-                        limit 1
                     `)
                 })
                 .then( (rows,fields) => {
-                */
-                .then( () => {
-                    //if ( rows.length > 0 )
-                    //    sample['today_nem'] = '' + rows[0].nem;
-                    sample['today_nem'] = 0;
-                    statusCache.set(config.macId, sample);
+                    let s = { grid : {} };
+
+                    if ( rows.length > 0 )
+                        s['nem'] = '' + rows[0].nem;
+
+                    s['demand'] = sample.demand;
+                    s['grid']['in'] = sample.summation_delivered;
+                    s['grid']['out'] = sample.summation_received;
+
+                    statusCache.set(config.macId, s);
+
                     fulfill(sample);
                 })
                 .catch((err) => {
@@ -238,13 +253,14 @@ function rainforest(config) {
                 })
                 .then((status) => {
 
-                    var d = {};
+                    let d = {};
 
                     d['name'] = config.name;
                     d['meterId'] = status.network_meter_mac_id.substring;
                     d['id'] = config.macId;
                     d['type'] = 'power.meter';
                     d['current'] = {};
+                    d['location'] = {};
 
                     deviceCache.set(d.id, d);
 

@@ -143,28 +143,28 @@ function rainforest(config) {
                     }
                     sample = status;
                     return db.insert('samples',
-                    {
-                        sample_ts: new Date(),
-                        meter_status: status.meter_status,
-                        demand: status.demand,
-                        demand_units: status.demand_units,
-                        demand_timestamp: status.demand_timestamp,
-                        usage_timestamp: status.usage_timestamp,
-                        summation_received: status.summation_received,
-                        summation_delivered: status.summation_delivered,
-                        summation_units: status.summation_units,
-                        price: status.price,
-                        price_units: status.price_units,
-                        price_label: status.price_label,
-                        message_timestamp: status.message_timestamp,
-                        message_text: status.message_text,
-                        message_confirmed: status.message_confirmed,
-                        message_confirm_required: status.message_confirm_required,
-                        message_id: status.message_id,
-                        message_queue: status.message_queue,
-                        message_priority: status.message_priority,
-                        message_read: status.message_read
-                    });
+                        {
+                            sample_ts: new Date(),
+                            meter_status: status.meter_status,
+                            demand: status.demand,
+                            demand_units: status.demand_units,
+                            demand_timestamp: status.demand_timestamp,
+                            usage_timestamp: status.usage_timestamp,
+                            summation_received: status.summation_received,
+                            summation_delivered: status.summation_delivered,
+                            summation_units: status.summation_units,
+                            price: status.price,
+                            price_units: status.price_units,
+                            price_label: status.price_label,
+                            message_timestamp: status.message_timestamp,
+                            message_text: status.message_text,
+                            message_confirmed: status.message_confirmed,
+                            message_confirm_required: status.message_confirm_required,
+                            message_id: status.message_id,
+                            message_queue: status.message_queue,
+                            message_priority: status.message_priority,
+                            message_read: status.message_read
+                        });
 
                 })
                 .then( () => {
@@ -210,31 +210,11 @@ function rainforest(config) {
         });
     }
 
-    var timerId;
-
-    function pollSystem() {
-
-        updateStatus()
-            .then((status) => {
-            })
-            .catch((err) => {
-                console.log("status returned error => " + err);
-            });
-    }
-
     function loadSystem() {
 
         return new Promise( (fulfill, reject) => {
 
             console.log("Loading System");
-
-            if ( timerId ) {
-                clearTimeout(timerId);
-                timerId = 0;
-            }
-
-            deviceCache.flushAll();
-            statusCache.flushAll();
 
             mysql.connect(config.db)
                 .then((connection) => {
@@ -285,31 +265,39 @@ function rainforest(config) {
                     deviceCache.set(d.id, d);
 
                     fulfill([d]);
-
-                    setInterval(pollSystem, 5000);
                 })
                 .catch((err) => {
                     reject(err);
-                    process.exit(1);
                 });
         });
     }
 
     this.Reload = () => {
-        return new Promise(  (fulfill, reject) => {
+        return new Promise( (fulfill,reject) => {
             fulfill([]);
         });
     };
 
     loadSystem()
+
         .then( () => {
 
+            function pollSystem() {
+
+                updateStatus()
+                    .then((status) => {
+                    })
+                    .catch((err) => {
+                        console.log("status returned error => " + err);
+                    });
+            }
+
+            setInterval(pollSystem, 5000);
         })
         .catch( (err) => {
-           console.log( err );
+            console.log( err );
         });
 
 }
 
 module.exports = rainforest;
-

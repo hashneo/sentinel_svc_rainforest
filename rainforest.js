@@ -210,11 +210,31 @@ function rainforest(config) {
         });
     }
 
+    var timerId;
+
+    function pollSystem() {
+
+        updateStatus()
+            .then((status) => {
+            })
+            .catch((err) => {
+                console.log("status returned error => " + err);
+            });
+    }
+
     function loadSystem() {
 
         return new Promise( (fulfill, reject) => {
 
             console.log("Loading System");
+
+            if ( timerId ) {
+                clearTimeout(timerId);
+                timerId = 0;
+            }
+
+            deviceCache.flushAll();
+            statusCache.flushAll();
 
             mysql.connect(config.db)
                 .then((connection) => {
@@ -265,28 +285,25 @@ function rainforest(config) {
                     deviceCache.set(d.id, d);
 
                     fulfill([d]);
+
+                    setInterval(pollSystem, 5000);
                 })
                 .catch((err) => {
                     reject(err);
+                    process.exit(1);
                 });
         });
     }
 
-    loadSystem()
+    this.Reload = () => {
+        return new Promise(  (fulfill, reject) => {
+            fulfill([]);
+        });
+    };
 
+    loadSystem()
         .then( () => {
 
-            function pollSystem() {
-
-                updateStatus()
-                    .then((status) => {
-                    })
-                    .catch((err) => {
-                        console.log("status returned error => " + err);
-                    });
-            }
-
-            setInterval(pollSystem, 5000);
         })
         .catch( (err) => {
            console.log( err );

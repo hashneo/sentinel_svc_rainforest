@@ -58,6 +58,21 @@ paths:
         default:
           $ref: '#/responses/Error'
 
+  /reload:
+    x-swagger-router-controller: system
+    get:
+      operationId: Reload
+      security:
+      - Oauth:
+        - user
+      responses:
+        200:
+          description: ok
+          schema:
+            type: object
+        default:
+          $ref: '#/responses/Error'
+
   /devices:
     x-swagger-router-controller: system
     get:

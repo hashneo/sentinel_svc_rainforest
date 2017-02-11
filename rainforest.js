@@ -167,7 +167,7 @@ function rainforest(config) {
                         });
 
                 })
-                .then( () => {
+                .then( () => { /*
                     return db.query( `
                         select t1.date, 
                         ( max(t1.max_summation_delivered) - min(t1.min_summation_delivered) ) -
@@ -189,11 +189,14 @@ function rainforest(config) {
                     `)
                 })
                 .then( (rows,fields) => {
+                */
                     let s = { grid : {} };
 
+                    s['nem'] = 0;
+/*
                     if ( rows.length > 0 )
                         s['nem'] = '' + rows[0].nem;
-
+*/
                     s['demand'] = sample.demand;
                     s['grid']['in'] = sample.summation_delivered;
                     s['grid']['out'] = sample.summation_received;

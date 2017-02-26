@@ -167,36 +167,37 @@ function rainforest(config) {
                         });
 
                 })
-                .then( () => { /*
+                .then( () => {
                     return db.query( `
-                        select t1.date, 
-                        ( max(t1.max_summation_delivered) - min(t1.min_summation_delivered) ) -
-                        ( max(t1.max_summation_received) - min(t1.min_summation_received) ) as nem
-                        from (
-                            select 
-                            from_unixtime(demand_timestamp, '%Y%m%d') as date,
-                            from_unixtime(demand_timestamp, '%h') as hour, 
-                            min(summation_delivered) as min_summation_delivered,
-                            max(summation_delivered) as max_summation_delivered,
-                            min(summation_received) as min_summation_received,
-                            max(summation_received) as max_summation_received
-                            from sentinel.samples
-                            group by date, hour
-                            having date >= DATE_FORMAT( CURDATE(), '%Y%m%d')
-                        ) t1 
-                        group by t1.date
-                        order by t1.date desc
-                    `)
+                                        select t1.date, 
+                                        ( max(t1.max_summation_delivered) - min(t1.min_summation_delivered) ) -
+                                        ( max(t1.max_summation_received) - min(t1.min_summation_received) ) as nem
+                                        from (
+                                            select 
+                                            from_unixtime(t2.demand_timestamp, '%Y%m%d') as date,
+                                            from_unixtime(t2.demand_timestamp, '%h') as hour, 
+                                            min(t2.summation_delivered) as min_summation_delivered,
+                                            max(t2.summation_delivered) as max_summation_delivered,
+                                            min(t2.summation_received) as min_summation_received,
+                                            max(t2.summation_received) as max_summation_received
+                                            from (
+                                                select * from sentinel.samples WHERE demand_timestamp >=  UNIX_TIMESTAMP (CURRENT_DATE - INTERVAL 1 DAY)
+                                            ) t2
+                                            group by date, hour
+                                        ) t1 
+                                        group by t1.date
+                                        order by t1.date desc
+                                    `)
                 })
                 .then( (rows,fields) => {
-                */
+
                     let s = { grid : {} };
 
                     s['nem'] = 0;
-/*
+
                     if ( rows.length > 0 )
                         s['nem'] = '' + rows[0].nem;
-*/
+
                     s['demand'] = sample.demand;
                     s['grid']['in'] = sample.summation_delivered;
                     s['grid']['out'] = sample.summation_received;

@@ -30,7 +30,7 @@ spec:
       containers:
         -
           name: sentinel-rainforest
-          image: steventaylor.me:5000/sentinel-rainforest-arm:latest
+          image: docker.steventaylor.me/sentinel-rainforest-arm:latest
           imagePullPolicy: IfNotPresent
           env:
             -

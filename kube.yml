@@ -43,3 +43,5 @@ spec:
             -
               containerPort: 5000
               protocol: TCP
+      nodeSelector:
+        arch: arm

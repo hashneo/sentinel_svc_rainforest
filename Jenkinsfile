@@ -4,7 +4,7 @@ env.LATEST = 'latest'
 env.DOCKER_REGISTRY = 'docker.steventaylor.me'
 env.SERVICE_NAME = 'sentinel-rainforest'
 env.CONTAINER1 = env.SERVICE_NAME + '-' + env.ARCH
-env.DOCKER_HOST = 'tcp://build-' + env.ARCH + '.steventaylor.me:2375'docker.steventaylor.me
+env.DOCKER_HOST = 'tcp://build-' + env.ARCH + '.steventaylor.me:2375'
 
 node {
 

@@ -129,13 +129,26 @@ function rainforest(config) {
 
     };
 
+    this.getData = (startDate) => {
+        return new Promise( (fulfill, reject) => {
+            try {
+                fulfill([]);
+            }catch(err){
+                reject(err);
+            }
+        });
+    };
+
     function updateStatus() {
 
         return new Promise( ( fulfill, reject ) => {
 
             let sample;
 
-            call('http://' + config.address + '/cgi-bin/cgi_manager', 'get_usage_data', config.macId)
+            let macId = config.macId;
+            let address = config.address;
+
+            call('http://' + address + '/cgi-bin/cgi_manager', 'get_usage_data', macId)
 
                 .then((status) => {
                     if (status.demand_timestamp === undefined) {
@@ -144,6 +157,7 @@ function rainforest(config) {
                     sample = status;
                     return db.insert('samples',
                         {
+                            mac_id: macId,
                             sample_ts: new Date(),
                             meter_status: status.meter_status,
                             demand: status.demand,
@@ -180,7 +194,7 @@ function rainforest(config) {
                                             min(t2.summation_received) as min_summation_received,
                                             max(t2.summation_received) as max_summation_received
                                             from (
-                                                select * from sentinel.samples where demand_timestamp >=  UNIX_TIMESTAMP (CURRENT_DATE)
+                                                select * from sentinel.samples where mac_id = '${macId}' and demand_timestamp >=  UNIX_TIMESTAMP (CURRENT_DATE)
                                             ) t2
                                             group by date
                                         ) t1 
@@ -201,7 +215,7 @@ function rainforest(config) {
                     s['grid']['in'] = sample.summation_delivered;
                     s['grid']['out'] = sample.summation_received;
 
-                    statusCache.set(config.macId, s);
+                    statusCache.set(macId, s);
 
                     fulfill(sample);
                 })
@@ -247,7 +261,8 @@ function rainforest(config) {
                                         message_id               INTEGER, \
                                         message_queue            TEXT, \
                                         message_priority         TEXT, \
-                                        message_read             TEXT \
+                                        message_read             TEXT, \
+                                        mac_id                   VARCHAR(60) \
                                     );');
 
                 })

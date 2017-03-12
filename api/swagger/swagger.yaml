@@ -123,6 +123,42 @@ paths:
         default:
           $ref: '#/responses/Error'
 
+  /device/{id}/usage/{range}:
+    x-swagger-router-controller: usage
+    get:
+      operationId: getUsage
+      security:
+      - Oauth:
+        - user
+      parameters:
+      - in: path
+        name: id
+        required: true
+        type: string
+      - in: path
+        name: range
+        required: true
+        type: string
+        enum: [
+          hour,
+          day,
+          week,
+          month,
+          year
+        ]
+      - in: query
+        name: start
+        required: false
+        type: string
+        format: date
+      responses:
+        200:
+          description: ok
+          schema:
+            type: object
+        default:
+          $ref: '#/responses/Error'
+
   /swagger:
       x-swagger-pipe: swagger_raw
 

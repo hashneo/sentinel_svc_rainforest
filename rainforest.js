@@ -175,15 +175,14 @@ function rainforest(config) {
                                         from (
                                             select 
                                             from_unixtime(t2.demand_timestamp, '%Y%m%d') as date,
-                                            from_unixtime(t2.demand_timestamp, '%h') as hour, 
                                             min(t2.summation_delivered) as min_summation_delivered,
                                             max(t2.summation_delivered) as max_summation_delivered,
                                             min(t2.summation_received) as min_summation_received,
                                             max(t2.summation_received) as max_summation_received
                                             from (
-                                                select * from sentinel.samples WHERE demand_timestamp >=  UNIX_TIMESTAMP (CURRENT_DATE - INTERVAL 1 DAY)
+                                                select * from sentinel.samples where demand_timestamp >=  UNIX_TIMESTAMP (CURRENT_DATE)
                                             ) t2
-                                            group by date, hour
+                                            group by date
                                         ) t1 
                                         group by t1.date
                                         order by t1.date desc

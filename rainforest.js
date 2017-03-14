@@ -205,7 +205,7 @@ function rainforest(config) {
                              ( max(t1.max_summation_received) - min(t1.min_summation_received) ) as nem
                              from (
                                  select 
-                                 from_unixtime(t2.demand_timestamp) as date,
+                                 from_unixtime(t2.demand_timestamp, "%Y-%m-%d") as date,
                                  min(t2.summation_delivered) as min_summation_delivered,
                                  max(t2.summation_delivered) as max_summation_delivered,
                                  min(t2.summation_received) as min_summation_received,
@@ -218,6 +218,7 @@ function rainforest(config) {
                              group by t1.date
                              order by t1.date desc
                             `;
+
                         return db.query(q);
                     })
                     .then((rows, fields) => {

@@ -157,83 +157,91 @@ function rainforest(config) {
             let macId = config.macId;
             let address = config.address;
 
-            call('http://' + address + '/cgi-bin/cgi_manager', 'get_usage_data', macId)
+            deviceCache.get( macId, (err, device) => {
 
-                .then((status) => {
-                    if (status.demand_timestamp === undefined) {
-                        return reject();
-                    }
-                    sample = status;
-                    return db.insert('samples',
-                        {
-                            mac_id: macId,
-                            sample_ts: new Date(),
-                            meter_status: status.meter_status,
-                            demand: status.demand,
-                            demand_units: status.demand_units,
-                            demand_timestamp: status.demand_timestamp,
-                            usage_timestamp: status.usage_timestamp,
-                            summation_received: status.summation_received,
-                            summation_delivered: status.summation_delivered,
-                            summation_units: status.summation_units,
-                            price: status.price,
-                            price_units: status.price_units,
-                            price_label: status.price_label,
-                            message_timestamp: status.message_timestamp,
-                            message_text: status.message_text,
-                            message_confirmed: status.message_confirmed,
-                            message_confirm_required: status.message_confirm_required,
-                            message_id: status.message_id,
-                            message_queue: status.message_queue,
-                            message_priority: status.message_priority,
-                            message_read: status.message_read
-                        });
+                if (err)
+                    return reject(err);
 
-                })
-                .then( () => {
-                    let ts = moment().format('YYYY-MM-DD');
-                    return db.query( `
-                                        select t1.date, 
-                                        ( max(t1.max_summation_delivered) - min(t1.min_summation_delivered) ) -
-                                        ( max(t1.max_summation_received) - min(t1.min_summation_received) ) as nem
-                                        from (
-                                            select 
-                                            from_unixtime(t2.demand_timestamp, '%Y%m%d') as date,
-                                            min(t2.summation_delivered) as min_summation_delivered,
-                                            max(t2.summation_delivered) as max_summation_delivered,
-                                            min(t2.summation_received) as min_summation_received,
-                                            max(t2.summation_received) as max_summation_received
-                                            from (
-                                                select * from sentinel.samples where mac_id = '${macId}' and demand_timestamp >= UNIX_TIMESTAMP (DATE('${ts}'))
-                                            ) t2
-                                            group by date
-                                        ) t1 
-                                        group by t1.date
-                                        order by t1.date desc
-                                    `)
-                })
-                .then( (rows,fields) => {
+                call('http://' + address + '/cgi-bin/cgi_manager', 'get_usage_data', macId)
 
-                    let s = { grid : {} };
+                    .then((status) => {
+                        if (status.demand_timestamp === undefined) {
+                            return reject();
+                        }
+                        sample = status;
+                        return db.insert('samples',
+                            {
+                                mac_id: macId,
+                                sample_ts: new Date(),
+                                meter_status: status.meter_status,
+                                demand: status.demand,
+                                demand_units: status.demand_units,
+                                demand_timestamp: status.demand_timestamp,
+                                usage_timestamp: status.usage_timestamp,
+                                summation_received: status.summation_received,
+                                summation_delivered: status.summation_delivered,
+                                summation_units: status.summation_units,
+                                price: status.price,
+                                price_units: status.price_units,
+                                price_label: status.price_label,
+                                message_timestamp: status.message_timestamp,
+                                message_text: status.message_text,
+                                message_confirmed: status.message_confirmed,
+                                message_confirm_required: status.message_confirm_required,
+                                message_id: status.message_id,
+                                message_queue: status.message_queue,
+                                message_priority: status.message_priority,
+                                message_read: status.message_read
+                            });
 
-                    s['nem'] = 0;
+                    })
+                    .then(() => {
 
-                    if ( rows.length > 0 )
-                        s['nem'] = '' + rows[0].nem;
+                        //let offset = moment().utcOffset( device.location.timezone.offset);
+                        let ts = moment.utc().add(config.tz_offset,'s').format('YYYY-MM-DD');
 
-                    s['demand'] = sample.demand;
-                    s['grid']['in'] = sample.summation_delivered;
-                    s['grid']['out'] = sample.summation_received;
+                        let q = `select t1.date, 
+                             ( max(t1.max_summation_delivered) - min(t1.min_summation_delivered) ) -
+                             ( max(t1.max_summation_received) - min(t1.min_summation_received) ) as nem
+                             from (
+                                 select 
+                                 from_unixtime(t2.demand_timestamp) as date,
+                                 min(t2.summation_delivered) as min_summation_delivered,
+                                 max(t2.summation_delivered) as max_summation_delivered,
+                                 min(t2.summation_received) as min_summation_received,
+                                 max(t2.summation_received) as max_summation_received
+                                 from (
+                                     select * from sentinel.samples where mac_id = '${macId}' and demand_timestamp >= UNIX_TIMESTAMP (DATE('${ts}'))
+                                 ) t2
+                                 group by date
+                             ) t1 
+                             group by t1.date
+                             order by t1.date desc
+                            `;
+                        return db.query(q);
+                    })
+                    .then((rows, fields) => {
 
-                    statusCache.set(macId, s);
+                        let s = {grid: {}};
 
-                    fulfill(sample);
-                })
-                .catch((err) => {
-                    console.error(err);
-                    reject(err);
-                });
+                        s['nem'] = 0;
 
+                        if (rows.length > 0)
+                            s['nem'] = '' + rows[0].nem;
+
+                        s['demand'] = sample.demand;
+                        s['grid']['in'] = sample.summation_delivered;
+                        s['grid']['out'] = sample.summation_received;
+
+                        statusCache.set(macId, s);
+
+                        fulfill(sample);
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                        reject(err);
+                    });
+            });
         });
     }
 
@@ -242,6 +250,8 @@ function rainforest(config) {
         return new Promise( (fulfill, reject) => {
 
             console.log("Loading System");
+
+            var deviceStatus;
 
             mysql.connect(config.db)
                 .then((connection) => {
@@ -280,15 +290,24 @@ function rainforest(config) {
                     return call('http://' + config.address + '/cgi-bin/cgi_manager', 'get_network_info', config.macId)
                 })
                 .then((status) => {
+                    deviceStatus = status;
+                    return call('http://' + config.address + '/cgi-bin/cgi_manager', 'get_timezone', config.macId)
+                })
+                .then((status) => {
 
                     let d = {};
 
                     d['name'] = config.name;
-                    d['meterId'] = status.network_meter_mac_id.substring;
+                    d['meterId'] = deviceStatus.network_meter_mac_id.substring;
                     d['id'] = config.macId;
                     d['type'] = 'power.meter';
                     d['current'] = {};
                     d['location'] = {};
+                    d['location']['timezone'] = {}
+                    d['location']['timezone']['name'] = status.timezone_tzName;
+                    d['location']['timezone']['offset'] = status.timezone_utcOffset;
+
+                    config.tz_offset = parseInt(status.timezone_localTime) - parseInt(status.timezone_utcTime);
 
                     deviceCache.set(d.id, d);
 

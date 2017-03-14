@@ -22,6 +22,8 @@ function rainforest(config) {
         process.exit(1);
     });
 
+    const moment = require('moment');
+
     const NodeCache = require( "node-cache" );
 
     const request = require('request');
@@ -129,10 +131,17 @@ function rainforest(config) {
 
     };
 
-    this.getData = (startDate) => {
+    this.getData = (q) => {
         return new Promise( (fulfill, reject) => {
             try {
-                fulfill([]);
+                db.query(q)
+                .then( (rows,fields) => {
+                    fulfill(rows);
+                })
+                .catch((err) => {
+                    console.error(err);
+                    reject(err);
+                });
             }catch(err){
                 reject(err);
             }
@@ -182,6 +191,7 @@ function rainforest(config) {
 
                 })
                 .then( () => {
+                    let ts = moment().format('YYYY-MM-DD');
                     return db.query( `
                                         select t1.date, 
                                         ( max(t1.max_summation_delivered) - min(t1.min_summation_delivered) ) -
@@ -194,7 +204,7 @@ function rainforest(config) {
                                             min(t2.summation_received) as min_summation_received,
                                             max(t2.summation_received) as max_summation_received
                                             from (
-                                                select * from sentinel.samples where mac_id = '${macId}' and demand_timestamp >=  UNIX_TIMESTAMP (CURRENT_DATE)
+                                                select * from sentinel.samples where mac_id = '${macId}' and demand_timestamp >= UNIX_TIMESTAMP (DATE('${ts}'))
                                             ) t2
                                             group by date
                                         ) t1 

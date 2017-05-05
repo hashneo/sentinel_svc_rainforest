@@ -106,7 +106,7 @@ function database(_connection) {
             if ( process.env.NOINSERT ){
                 fulfill(0);
             }else {
-                connection.query(`INSERT INTO ${t} (${_f.join(', ')}) VALUES (${_q.join(', ')})`, _p, (err, result) => {
+                connection.query(`INSERT IGNORE INTO ${t} (${_f.join(', ')}) VALUES (${_q.join(', ')})`, _p, (err, result) => {
                     if (err) {
                         reject(err);
                     } else {

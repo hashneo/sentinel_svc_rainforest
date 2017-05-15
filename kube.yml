@@ -44,4 +44,4 @@ spec:
               containerPort: 5000
               protocol: TCP
       nodeSelector:
-        arch: x86_64
+        beta.kubernetes.io/arch: amd64

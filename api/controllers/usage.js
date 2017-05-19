@@ -72,7 +72,7 @@ getUsageBy['day'] = (id, end, res) => {
 
 getUsageBy['week'] = (id, end, res) => {
 
-    let ts1 = moment(end).subtract(7, 'd').format('YYYY-MM-DD');
+    let ts1 = moment(end).subtract(1, 'w').format('YYYY-MM-DD');
     let ts2 = moment(end).format('YYYY-MM-DD');
 
     let q = `
@@ -96,7 +96,7 @@ getUsageBy['week'] = (id, end, res) => {
 
 getUsageBy['month'] = (id, end, res) => {
 
-    let ts1 = moment(end).subtract(30, 'd').format('YYYY-MM-DD');
+    let ts1 = moment(end).subtract(1, 'm').format('YYYY-MM-DD');
     let ts2 = moment(end).format('YYYY-MM-DD');
 
     let q = `
@@ -120,7 +120,7 @@ getUsageBy['month'] = (id, end, res) => {
 
 getUsageBy['year'] = (id, start, res) => {
 
-    let ts1 = moment(end).subtract(365, 'd').format('YYYY-MM-DD');
+    let ts1 = moment(end).subtract(1, 'y').format('YYYY-MM-DD');
     let ts2 = moment(end).format('YYYY-MM-DD');
 
     let q = `

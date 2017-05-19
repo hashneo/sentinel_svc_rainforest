@@ -147,7 +147,7 @@ paths:
           year
         ]
       - in: query
-        name: start
+        name: end
         required: false
         type: string
         format: date

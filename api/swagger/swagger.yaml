@@ -140,14 +140,14 @@ paths:
         required: true
         type: string
         enum: [
-          hour,
+          now,
           day,
           week,
           month,
           year
         ]
       - in: query
-        name: end
+        name: start
         required: false
         type: string
         format: date

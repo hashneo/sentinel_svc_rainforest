@@ -56,7 +56,7 @@ getUsageBy['day'] = (id, end, res) => {
         from_unixtime(t2.demand_timestamp, "%Y-%m-%d") as date,
         (max(t2.summation_delivered) - min(t2.summation_delivered)) - (max(t2.summation_received) - min(t2.summation_received)) as kwh
     from (
-        select * from sentinel.samples where mac_id = '${id}' and demand_timestamp > UNIX_TIMESTAMP (DATE('${ts2}')) AND demand_timestamp <= UNIX_TIMESTAMP (DATE('${ts2}') )
+        select * from sentinel.samples where mac_id = '${id}' and demand_timestamp > UNIX_TIMESTAMP (DATE('${ts2}')) AND demand_timestamp <= UNIX_TIMESTAMP (TIMESTAMP('${ts2} 23:59:59') )
     ) t2
     group by date`;
 
@@ -80,7 +80,7 @@ getUsageBy['week'] = (id, end, res) => {
         from_unixtime(t2.demand_timestamp, "%Y-%m-%d") as date,
         (max(t2.summation_delivered) - min(t2.summation_delivered)) - (max(t2.summation_received) - min(t2.summation_received)) as kwh
     from (
-        select * from sentinel.samples where mac_id = '${id}' and demand_timestamp > UNIX_TIMESTAMP (DATE('${ts1}')) AND demand_timestamp <= UNIX_TIMESTAMP (DATE('${ts2}') )
+        select * from sentinel.samples where mac_id = '${id}' and demand_timestamp > UNIX_TIMESTAMP (DATE('${ts1}')) AND demand_timestamp <= UNIX_TIMESTAMP (TIMESTAMP('${ts2} 23:59:59') )
     ) t2
     group by date`;
 
@@ -104,7 +104,7 @@ getUsageBy['month'] = (id, end, res) => {
         from_unixtime(t2.demand_timestamp, "%Y-%m-%d") as date,
         (max(t2.summation_delivered) - min(t2.summation_delivered)) - (max(t2.summation_received) - min(t2.summation_received)) as kwh
     from (
-        select * from sentinel.samples where mac_id = '${id}' and demand_timestamp > UNIX_TIMESTAMP (DATE('${ts1}')) AND demand_timestamp <= UNIX_TIMESTAMP (DATE('${ts2}') )
+        select * from sentinel.samples where mac_id = '${id}' and demand_timestamp > UNIX_TIMESTAMP (DATE('${ts1}')) AND demand_timestamp <= UNIX_TIMESTAMP (TIMESTAMP('${ts2} 23:59:59') )
     ) t2
     group by date`;
 
@@ -118,7 +118,7 @@ getUsageBy['month'] = (id, end, res) => {
         });
 };
 
-getUsageBy['year'] = (id, end, res) => {
+getUsageBy['year'] = (id, start, res) => {
 
     let ts1 = moment(end).subtract(365, 'd').format('YYYY-MM-DD');
     let ts2 = moment(end).format('YYYY-MM-DD');
@@ -128,7 +128,7 @@ getUsageBy['year'] = (id, end, res) => {
         from_unixtime(t2.demand_timestamp, "%Y-%m") as date,
         (max(t2.summation_delivered) - min(t2.summation_delivered)) - (max(t2.summation_received) - min(t2.summation_received)) as kwh
     from (
-        select * from sentinel.samples where mac_id = '${id}' and demand_timestamp > UNIX_TIMESTAMP (DATE('${ts1}')) AND demand_timestamp <= UNIX_TIMESTAMP (DATE('${ts2}') )
+        select * from sentinel.samples where mac_id = '${id}' and demand_timestamp > UNIX_TIMESTAMP (DATE('${ts1}')) AND demand_timestamp <= UNIX_TIMESTAMP (TIMESTAMP('${ts2} 23:59:59') )
     ) t2
     group by date`;
 

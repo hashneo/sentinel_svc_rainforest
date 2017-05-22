@@ -21,6 +21,7 @@ node {
         sh 'docker push ${DOCKER_REGISTRY}/${CONTAINER1}:${LATEST}'
 
         stage 'cleanup'
+        sh 'docker rmi ${DOCKER_REGISTRY}/${CONTAINER1}:${LATEST}'
         sh 'docker rmi ${DOCKER_REGISTRY}/${CONTAINER1}:${BUILD}'
 
 //        stage 'deploy'

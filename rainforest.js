@@ -261,30 +261,33 @@ function rainforest(config) {
                 .then((schema) => {
                     db = schema;
 
-                    return db.query('CREATE TABLE IF NOT EXISTS samples \
-                                    ( \
-                                        sample_ts                DATETIME PRIMARY KEY NOT NULL, \
-                                        meter_status             TEXT, \
-                                        demand                   FLOAT ,  \
-                                        demand_units             TEXT, \
-                                        demand_timestamp         INTEGER, \
-                                        usage_timestamp          INTEGER, \
-                                        summation_received       FLOAT, \
-                                        summation_delivered      FLOAT, \
-                                        summation_units          TEXT, \
-                                        price                    FLOAT, \
-                                        price_units              TEXT, \
-                                        price_label              TEXT, \
-                                        message_timestamp        INTEGER, \
-                                        message_text             TEXT, \
-                                        message_confirmed        TEXT, \
-                                        message_confirm_required TEXT, \
-                                        message_id               INTEGER, \
-                                        message_queue            TEXT, \
-                                        message_priority         TEXT, \
-                                        message_read             TEXT, \
-                                        mac_id                   VARCHAR(60) \
-                                    );');
+                    return db.query(`
+                    CREATE TABLE IF NOT EXISTS samples
+                    (
+                        sample_ts                DATETIME PRIMARY KEY NOT NULL, 
+                        meter_status             TEXT, 
+                        demand                   FLOAT ,  
+                        demand_units             TEXT, 
+                        demand_timestamp         INTEGER, 
+                        usage_timestamp          INTEGER, 
+                        summation_received       FLOAT, 
+                        summation_delivered      FLOAT, 
+                        summation_units          TEXT, 
+                        price                    FLOAT, 
+                        price_units              TEXT, 
+                        price_label              TEXT, 
+                        message_timestamp        INTEGER, 
+                        message_text             TEXT, 
+                        message_confirmed        TEXT, 
+                        message_confirm_required TEXT, 
+                        message_id               INTEGER, 
+                        message_queue            TEXT, 
+                        message_priority         TEXT, 
+                        message_read             TEXT, 
+                        mac_id                   VARCHAR(60),
+                        UNIQUE INDEX idx_demand_timestamp (demand_timestamp)
+                    );
+                    `);
 
                 })
                 .then(() => {

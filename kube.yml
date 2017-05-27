@@ -38,7 +38,7 @@ spec:
               value: "5000"
             -
               name: "CONSUL"
-              value: "10.0.1.90"
+              value: "consul.steventaylor.me"
           ports:
             -
               containerPort: 5000

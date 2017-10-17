@@ -37,11 +37,22 @@ function rainforest(config) {
 
     let db;
 
-    deviceCache.on( "set", function( key, value ){
+    deviceCache.on( 'set', function( key, value ){
+        let data = JSON.stringify( { module: 'rainforest', id : key, value : value });
+        console.log( 'sentinel.device.insert => ' + data );
+        pub.publish( 'sentinel.device.insert', data);
     });
 
-    statusCache.on( "set", function( key, value ){
-        pub.publish("sentinel.device.update",  JSON.stringify( { module: 'rainforest', id : key, value : value } ) );
+    deviceCache.on( 'delete', function( key ){
+        let data = JSON.stringify( { module: 'rainforest', id : key });
+        console.log( 'sentinel.device.delete => ' + data );
+        pub.publish( 'sentinel.device.delete', data);
+    });
+
+    statusCache.on( 'set', function( key, value ){
+        let data = JSON.stringify( { module: 'rainforest', id : key, value : value });
+        console.log( 'sentinel.device.update => ' + data );
+        pub.publish( 'sentinel.device.update', data);
     });
 
     function call(url, command, macId) {

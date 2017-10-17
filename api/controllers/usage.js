@@ -36,7 +36,7 @@ getUsageBy['now'] = (id, start, res) => {
     ) t2
     group by hour`;
 
-    global.rainforest.getData(q)
+    global.module.getData(q)
         .then( (data) => {
             res.json( { data: data, result : 'ok'  } );
         })
@@ -59,7 +59,7 @@ getUsageBy['day'] = (id, start, res) => {
     ) t2
     group by hour`;
 
-    global.rainforest.getData(q)
+    global.module.getData(q)
         .then( (data) => {
             res.json( { data: data, result : 'ok'  } );
         })
@@ -82,7 +82,7 @@ getUsageBy['week'] = (id, start, res) => {
     ) t2
     group by date`;
 
-    global.rainforest.getData(q)
+    global.module.getData(q)
         .then( (data) => {
             res.json( { data: data, result : 'ok'  } );
         })
@@ -105,7 +105,7 @@ getUsageBy['month'] = (id, start, res) => {
     ) t2
     group by date`;
 
-    global.rainforest.getData(q)
+    global.module.getData(q)
         .then( (data) => {
             res.json( { data: data, result : 'ok'  } );
         })
@@ -128,7 +128,7 @@ getUsageBy['year'] = (id, start, res) => {
     ) t2
     group by date`;
 
-    global.rainforest.getData(q)
+    global.module.getData(q)
         .then( (data) => {
             res.json( { data: data, result : 'ok'  } );
         })

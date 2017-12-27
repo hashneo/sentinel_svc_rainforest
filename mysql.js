@@ -10,6 +10,14 @@ function mysql(){
 
         return new Promise( (fulfill, reject ) => {
 
+            if (!config){
+                config = {
+                    host: 'localhost',
+                    user: 'root',
+                    password: 'bitnami'
+                }
+            }
+
             let c = mysql.createConnection({
                 host: config.host,
                 user: config.user,

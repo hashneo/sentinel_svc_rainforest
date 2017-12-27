@@ -358,7 +358,7 @@ function rainforest(config) {
         })
         .catch( (err) => {
             console.log( err );
-            system.exit(1);
+            process.exit(1);
         });
 
 }

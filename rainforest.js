@@ -222,7 +222,7 @@ function rainforest(config) {
                                  min(t2.summation_received) as min_summation_received,
                                  max(t2.summation_received) as max_summation_received
                                  from (
-                                     select * from sentinel.samples where summation_delivered > 0 and summation_received > 0 and mac_id = '${macId}' and demand_timestamp >= UNIX_TIMESTAMP (DATE('${ts}'))
+                                     select * from ${global.schema}.samples where summation_delivered > 0 and summation_received > 0 and mac_id = '${macId}' and demand_timestamp >= UNIX_TIMESTAMP (DATE('${ts}'))
                                  ) t2
                                  group by date
                              ) t1 
@@ -265,9 +265,11 @@ function rainforest(config) {
 
             var deviceStatus;
 
+            global.schema = config.db.schema ||'sentinel';
+
             mysql.connect(config.db)
                 .then((connection) => {
-                    return connection.useDatabase('sentinel');
+                    return connection.useDatabase(global.schema);
                 })
                 .then((schema) => {
                     db = schema;

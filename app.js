@@ -18,6 +18,10 @@ const consul = require('consul')( {
 let moduleName = 'rainforest';
 
 app.use(bodyParser.json({limit: '50mb'}));
+
+const xmlparser = require('express-xml-bodyparser');
+app.use(xmlparser());
+
 app.use(cookieParser());
 
 let appConfig = {

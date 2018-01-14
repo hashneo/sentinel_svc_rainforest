@@ -180,6 +180,10 @@ function rainforest(config) {
                             return reject();
                         }
                         sample = status;
+
+                        if ( !sample )
+                            reject( new Error('empty data') );
+
                         return db.insert('samples',
                             {
                                 mac_id: macId,
@@ -320,7 +324,7 @@ function rainforest(config) {
                     d['type'] = 'power.meter';
                     d['current'] = {};
                     d['location'] = {};
-                    d['location']['timezone'] = {}
+                    d['location']['timezone'] = {};
                     d['location']['timezone']['name'] = status.timezone_tzName;
                     d['location']['timezone']['offset'] = status.timezone_utcOffset;
 

@@ -156,6 +156,30 @@ paths:
         default:
           $ref: '#/responses/Error'
 
+  /data:
+    x-swagger-router-controller: data
+    post:
+      operationId: postData
+      security:
+      - Oauth:
+        - open
+      consumes:
+      - application/xml
+      produces:
+        - text/plain
+      parameters:
+      - in: body
+        name: data
+        description: Usage object
+        required: true
+        schema:
+          type: object
+      responses:
+        200:
+          description: ok
+        default:
+          $ref: '#/responses/Error'
+
   /swagger:
       x-swagger-pipe: swagger_raw
 

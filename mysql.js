@@ -20,6 +20,7 @@ function mysql(){
 
             let c = mysql.createConnection({
                 host: config.host,
+                port: config.port || '3306',
                 user: config.user,
                 password: config.password
             });

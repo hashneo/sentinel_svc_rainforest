@@ -321,7 +321,7 @@ function rainforest(config) {
                     d['name'] = config.name;
                     d['meterId'] = deviceStatus.network_meter_mac_id.substring;
                     d['id'] = config.macId;
-                    d['type'] = 'power.meter';
+                    d['type'] = 'power.meter.grid';
                     d['current'] = {};
                     d['location'] = {};
                     d['location']['timezone'] = {};
